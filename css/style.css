@@ -1,1 +1,6 @@
 /* Stylesheet by Trever J. Bruhn 2022*/
+
+/* defining the height of the map container*/
+#map {
+  height: 600px;
+}
