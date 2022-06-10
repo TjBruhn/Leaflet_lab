@@ -1,6 +1,21 @@
 /* Stylesheet by Trever J. Bruhn 2022*/
 
-/* defining the height of the map container*/
+/* defining the size of the map container*/
 #map {
   height: 600px;
+  width: 80%;
+  display: inline-block;
+}
+
+/*defining the size of teh panel container*/
+#panel {
+  width: 16%;
+  padding: 20px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+/*styleing the popups to have less space between attr*/
+.leaflet-popup-content p {
+  margin: 0.2em 0;
 }
