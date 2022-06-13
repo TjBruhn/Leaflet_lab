@@ -21,6 +21,26 @@ function createMap() {
   getData(map);
 }
 
+function AttributeSplit(attribute) {
+  var monthList = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  this.year = attribute.split("-")[0];
+  this.monthNum = attribute.split("-")[1];
+  this.month = monthList[Number(this.monthNum) - 1];
+}
+
 // //function to create popups will ba called in pointToLayer and UpdatePropSymbols
 // function createPopUp(properties, attribute, layer, radius) {
 //   //split out month and year
@@ -180,7 +200,20 @@ function updatePropSymbols(map, attribute) {
       //add popup to circle marker
       popup.bindToLayer();
 
-      $("#panel").html(popup.panelContent);
+      //update legend
+      var attributeSplit = new AttributeSplit(attribute);
+
+      $(".legend-control-container span").html(
+        "Precipitation in " + attributeSplit.month + " " + attributeSplit.year
+      );
+
+      $("#panel").html(
+        "<h1>" +
+          attributeSplit.year +
+          "</h1><h2>" +
+          attributeSplit.month +
+          "</h2>"
+      );
       //event listener to update panel content on click and stay at the index set by the sequence controls
       layer.on({
         click: function () {
@@ -193,8 +226,31 @@ function updatePropSymbols(map, attribute) {
 
 //create New sequence controls
 function createSequenceControls(map, attributes) {
-  //create range input element (the slider)
-  $("#foot").append('<input class="range-slider" type="range">');
+  //adds the sequence controls on the map
+  var SequenceControl = L.Control.extend({
+    options: {
+      position: "bottomleft",
+    },
+    onAdd: function (map) {
+      //create the controls container div with a specific class name
+      var container = L.DomUtil.create("div", "sequence-control-container");
+
+      //create range input element (the slider)
+      $(container).append('<input class="range-slider" type="range">');
+
+      //add buttons
+      $(container).append('<button class="skip" id="reverse">Reverse</button>');
+      $(container).append('<button class="skip" id="forward">Skip</button>');
+
+      //kill any mouse event listeners on the map
+      $(container).on("mousedown dblclick", function (e) {
+        L.DomEvent.stopPropagation(e);
+      });
+
+      return container;
+    },
+  });
+  map.addControl(new SequenceControl());
   //set slider attributes
   $(".range-slider").attr({
     max: 60,
@@ -202,9 +258,7 @@ function createSequenceControls(map, attributes) {
     value: 0,
     step: 1,
   });
-  //add buttons
-  $("#foot").append('<button class="skip" id="reverse">Reverse</button>');
-  $("#foot").append('<button class="skip" id="forward">Skip</button>');
+
   //add icons for buttons
   $("#forward").html('<img src="img/skip_fwd.png">');
   $("#reverse").html('<img src="img/skip_rev.png">');
@@ -239,6 +293,39 @@ function createSequenceControls(map, attributes) {
   });
 }
 
+function createLegend(map, attributes) {
+  var LegendControl = L.Control.extend({
+    options: {
+      position: "bottomright",
+    },
+    onAdd: function (map) {
+      //create the control container with a specific class name
+      var container = L.DomUtil.create("div", "legend-control-container");
+
+      //script to create temporal legend content
+      var attributeSplit = new AttributeSplit(attributes[0]);
+
+      $(container).append(
+        "<span>Precipitation in " +
+          attributeSplit.month +
+          " " +
+          attributeSplit.year +
+          "</span>"
+      );
+
+      return container;
+    },
+  });
+  map.addControl(new LegendControl());
+}
+
+function createPanel(map, attributes) {
+  var attributeSplit = new AttributeSplit(attributes[0]);
+  $("#panel").html(
+    "<h1>" + attributeSplit.year + "</h1><h2>" + attributeSplit.month + "</h2>"
+  );
+}
+
 //builds an array of attributes from the data
 function processData(data) {
   //empty array to hold attributes
@@ -269,6 +356,10 @@ function getData(map) {
       createPropSymbols(response, map, attributes);
       //call function to create sequence controls
       createSequenceControls(map, attributes);
+      //call function to create temporal legend on the map
+      createLegend(map, attributes);
+      //call function to create sidepanel for the map
+      createPanel(map, attributes);
     },
   });
 }
