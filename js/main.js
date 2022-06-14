@@ -21,6 +21,7 @@ function createMap() {
   getData(map);
 }
 
+//create an object that splits the attribute into month, numeric month, and year
 function AttributeSplit(attribute) {
   var monthList = [
     "January",
@@ -41,32 +42,7 @@ function AttributeSplit(attribute) {
   this.month = monthList[Number(this.monthNum) - 1];
 }
 
-// //function to create popups will ba called in pointToLayer and UpdatePropSymbols
-// function createPopUp(properties, attribute, layer, radius) {
-//   //split out month and year
-//   var year = attribute.split("-")[0];
-//   var month = attribute.split("-")[1];
-
-//   //construct popup
-//   var popupContent =
-//     "<p><b>City:</b> " +
-//     properties.City +
-//     "</p>" +
-//     "<p><b>Precipitation in " +
-//     month +
-//     "/" +
-//     year +
-//     ":</b> " +
-//     properties[attribute] +
-//     " inches</p>";
-
-//   //bind the popups to the circle marker add offset to move them above
-//   layer.bindPopup(popupContent, {
-//     offset: new L.Point(0, -radius),
-//   });
-// }
-
-//constructor function to create a popup object instead of a fuction like above
+//constructor function to create a popup object
 function Popup(properties, attribute, layer, radius) {
   this.properties = properties;
   this.attribute = attribute;
@@ -113,8 +89,8 @@ function pointToLayer(feature, latlng, attributes) {
 
   //create marker options
   var geojsonMarkerOptions = {
-    fillColor: "#ff7800",
-    color: "#000",
+    fillColor: "#0068E7",
+    color: "#1D0073",
     weight: 1,
     opacity: 1,
     fillOpacity: 0.8,
@@ -128,17 +104,6 @@ function pointToLayer(feature, latlng, attributes) {
   //create the circle marker layer
   var layer = L.circleMarker(latlng, geojsonMarkerOptions);
 
-  //add the popups
-
-  // //use this with the function version
-  // createPopUp(
-  //   feature.properties,
-  //   attribute,
-  //   layer,
-  //   geojsonMarkerOptions.radius
-  // );
-
-  //Use this with the class version
   //create new popup
   var popup = new Popup(
     feature.properties,
@@ -190,30 +155,18 @@ function updatePropSymbols(map, attribute) {
       layer.setRadius(radius);
 
       //update popups
-      // //use this version with the function
-      // createPopUp(props, attribute, layer, radius);
-
-      //Use this with the class version
-      //create new popup
+      //create new popup object
       var popup = new Popup(props, attribute, layer, radius);
 
       //add popup to circle marker
       popup.bindToLayer();
 
       //update legend
-      var attributeSplit = new AttributeSplit(attribute);
+      updateLegend(map, attribute);
 
-      $(".legend-control-container span").html(
-        "Precipitation in " + attributeSplit.month + " " + attributeSplit.year
-      );
+      //update panel
+      createPanel(map, attribute);
 
-      $("#panel").html(
-        "<h1>" +
-          attributeSplit.year +
-          "</h1><h2>" +
-          attributeSplit.month +
-          "</h2>"
-      );
       //event listener to update panel content on click and stay at the index set by the sequence controls
       layer.on({
         click: function () {
@@ -293,6 +246,72 @@ function createSequenceControls(map, attributes) {
   });
 }
 
+//calculate the max mean, and min vals for a given attribute
+function getCircleValues(map, attribute) {
+  //start with min/max at the highest/lowest possible
+  var min = Infinity;
+  var max = -Infinity;
+
+  map.eachLayer(function (layer) {
+    //get the attribute value
+    if (layer.feature) {
+      var attributeValue = Number(layer.feature.properties[attribute]);
+
+      //test for min
+      if (attributeValue < min) {
+        min = attributeValue;
+      }
+
+      //test for max
+      if (attributeValue > max) {
+        max = attributeValue;
+      }
+    }
+  });
+
+  //set mean
+  var mean = (min + max) / 2;
+
+  //return vals as an object
+  return {
+    max: max,
+    mean: mean,
+    min: min,
+  };
+}
+
+//updates legend dynamically
+function updateLegend(map, attribute) {
+  //script to create temporal legend content
+  var attributeSplit = new AttributeSplit(attribute);
+  var content =
+    "Precipitation in " + attributeSplit.month + " " + attributeSplit.year;
+
+  //replace the content in the legend
+  $("#temporal-legend").html(content);
+
+  //get the max, mean, min valuse as an object
+  var circleValues = getCircleValues(map, attribute);
+
+  //loop over the circle values to assign a radius and vert ceter to each o 3 circles
+  for (var key in circleValues) {
+    //get radius
+    var radius = calcPropRadius(circleValues[key]);
+
+    //assign the cy and r attributes
+    $("#" + key).attr({
+      cy: 59 - radius,
+      r: radius,
+    });
+
+    //add legend text
+    $("#" + key + "-text").text(
+      Math.round(circleValues[key] * 100) / 100 + " inches"
+    );
+  }
+}
+
+//creates legend and places it on the map
 function createLegend(map, attributes) {
   var LegendControl = L.Control.extend({
     options: {
@@ -302,25 +321,52 @@ function createLegend(map, attributes) {
       //create the control container with a specific class name
       var container = L.DomUtil.create("div", "legend-control-container");
 
-      //script to create temporal legend content
-      var attributeSplit = new AttributeSplit(attributes[0]);
+      //add temporal legend div to container
+      $(container).append('<div id="temporal-legend">');
 
-      $(container).append(
-        "<span>Precipitation in " +
-          attributeSplit.month +
-          " " +
-          attributeSplit.year +
-          "</span>"
-      );
+      //start attribute legend with svg string
+      var svg = '<svg id="attribute-legend" width="160px" height="60px">';
+
+      //array of circle names to base loop on
+      var circles = {
+        max: 20,
+        mean: 40,
+        min: 60,
+      };
+
+      // loop to add each circle and text to svg string
+      for (var circle in circles) {
+        //circle string
+        svg +=
+          '<circle class="legend-circle" id="' +
+          circle +
+          '" fill="#0068E7" fill-opacity="0.8" stroke="#1D0073" cx="30"/>';
+
+        //text string
+        svg +=
+          '<text id="' +
+          circle +
+          '-text" x="65" y="' +
+          circles[circle] +
+          '"></text>';
+      }
+
+      //close svg string
+      svg += "</svg>";
+
+      //add attribute legend svg to container
+      $(container).append(svg);
 
       return container;
     },
   });
   map.addControl(new LegendControl());
+  updateLegend(map, attributes[0]);
 }
 
-function createPanel(map, attributes) {
-  var attributeSplit = new AttributeSplit(attributes[0]);
+//adds content to side panel initially
+function createPanel(map, attribute) {
+  var attributeSplit = new AttributeSplit(attribute);
   $("#panel").html(
     "<h1>" + attributeSplit.year + "</h1><h2>" + attributeSplit.month + "</h2>"
   );
@@ -344,6 +390,7 @@ function processData(data) {
   return attributes;
 }
 
+//loads the data and calls functions to bring all elements together on the map
 function getData(map) {
   //load the data
   $.ajax("data/OR_cities_precip.geojson", {
@@ -359,7 +406,7 @@ function getData(map) {
       //call function to create temporal legend on the map
       createLegend(map, attributes);
       //call function to create sidepanel for the map
-      createPanel(map, attributes);
+      createPanel(map, attributes[0]);
     },
   });
 }
