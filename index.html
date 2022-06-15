@@ -5,13 +5,22 @@
 		<meta name="viewport" content="width=device-width">
 		<title>Boilerplate</title>
 
+		<!--fonts-->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Patrick+Hand+SC&display=swap" rel="stylesheet">
+
 
 		<!--put your external stylesheet links here-->
 		<link rel="stylesheet" href="node_modules/leaflet/dist/leaflet.css" />
 		<link rel="stylesheet" href="node_modules/leaflet-search/dist/leaflet-search.min.css" />
 		
-		<link rel="stylesheet" href="lib/Leaflet.markercluster-1.4.1/dist/MarkerCluster.css">
-		<link rel="stylesheet" href="lib/Leaflet.markercluster-1.4.1/dist/MarkerCluster.Default.css">
+		
+		<!--zoomhome plugin-->
+		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"/>
+		<link rel="stylesheet" href="lib/leaflet.zoomhome-master/dist/leaflet.zoomhome.css"/>
+		<!--END zoomhome-->
+
 		<link rel="stylesheet" href="css/style.css">
 		<!--[if IE<9]>
 			<link rel="stylesheet" href="css/style.ie.css">
@@ -22,22 +31,35 @@
 	</head>
 
 	<body>
+		<div id="title">
+			<h1>Precipitation in Oregon Cities 2017 - 2021 </h1>
+		</div>
 		<div id="map"></div>
-		<div id="panel"></div>
-		<div id="foot"></div>
+		<div id="panel">
+			<div id="panelTop"></div>
+			<div id="summary">
+				<h3>Let it Rain!</h3>
+				<p>The summer of 2021 will be remebered by the heat dome which hovered over the pacific northwest and brought some of the highest temps ever recorded in the region. The same summer was marked by massive wildfires whose smoke blanketed much of the US. In Oregon, these anomoulus events were preceeded by a percieved exceptionally dry year.</p>
+				<p>This map explores the month by month preciptation totals in Oregon cities from January 2017 to December 2021. Explore the changes from the statewide view or select a city or zoom to a region to observe from a more targeted perspective.</p>
+			</div>
+		</div>
+		<div id="foot">
+			<span>References:</span>
+		</div>
 
 		<!--you can also use this space for internal scripts or stylesheets;place these within <script> or <style> tags-->
 		
 
 		<!--put your external script links here-->
-		<script type="text/javascript" src="lib/jquery-3.6.0.js" id="S1"></script>
-
-		
-
+		<!--jQuery-->
+		<script type="text/javascript" src="lib/jquery-3.6.0.js" id="S1"></script>		
+		<!--leaflet-->
 		<script src="node_modules/leaflet/dist/leaflet.js"></script>
+		<!--leaflet search tool-->
 		<script src="node_modules/leaflet-search/dist/leaflet-search.min.js"></script>
-		
-		<script src="lib/Leaflet.markercluster-1.4.1/dist/leaflet.markercluster-src.js"></script>
+		<!--leaflet zoom with home button-->
+		<script src="lib/leaflet.zoomhome-master/dist/leaflet.zoomhome.min.js"></script>
+		<!--main .js script-->
 		<script type="text/javascript" src="js/main.js" id="S4"></script>
 	</body>
 </html>

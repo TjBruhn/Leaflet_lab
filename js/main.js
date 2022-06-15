@@ -7,9 +7,14 @@ function createMap() {
   //create the map
   var map = L.map("map", {
     center: [44.15, -121],
+    zoomControl: false,
     zoom: 7,
-    minZoom: 7,
+    minZoom: 6,
   });
+
+  //addZoomhome
+  var zoomHome = L.Control.zoomHome();
+  zoomHome.addTo(map);
 
   //add OSM base tile layer
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -75,6 +80,7 @@ function calcPropRadius(attValue) {
   var scaleFactor = 50;
   //area based on scalefactor and attValue
   var area = attValue * scaleFactor;
+
   //radius calculated based on area
   var radius = Math.sqrt(area / Math.PI);
 
@@ -125,7 +131,7 @@ function pointToLayer(feature, latlng, attributes) {
     },
     //add side panel information using popup
     click: function () {
-      $("#panel").html(popup.panelContent);
+      $("#panelTop").html(popup.panelContent);
     },
   });
 
@@ -156,7 +162,7 @@ function createPropSymbols(data, map, attributes) {
 //Resize proportional symbols according to attribute vals selected with seqControls
 function updatePropSymbols(map, attribute) {
   map.eachLayer(function (layer) {
-    if (layer.feature && layer.feature.properties[attribute]) {
+    if (layer.feature && layer.feature.properties[attribute] > -1) {
       //access feature properties
       var props = layer.feature.properties;
 
@@ -180,7 +186,7 @@ function updatePropSymbols(map, attribute) {
       //event listener to update panel content on click and stay at the index set by the sequence controls
       layer.on({
         click: function () {
-          $("#panel").html(popup.panelContent);
+          $("#panelTop").html(popup.panelContent);
         },
       });
     }
@@ -198,6 +204,7 @@ function createSequenceControls(map, attributes) {
       //create the controls container div with a specific class name
       var container = L.DomUtil.create("div", "sequence-control-container");
 
+      $(container).append("<span>Select Month/Year</span>");
       //create range input element (the slider)
       $(container).append('<input class="range-slider" type="range">');
 
@@ -217,7 +224,7 @@ function createSequenceControls(map, attributes) {
 
   //set slider attributes
   $(".range-slider").attr({
-    max: 60,
+    max: 59,
     min: 0,
     value: 0,
     step: 1,
@@ -243,15 +250,15 @@ function createSequenceControls(map, attributes) {
     if ($(this).attr("id") == "forward") {
       index++;
       //if past last attribute wrap to the first
-      index = index > 60 ? 0 : index;
+      index = index > 59 ? 0 : index;
     } else if ($(this).attr("id") == "reverse") {
       index--;
       //if past first wrap to last
-      index = index < 0 ? 60 : index;
+      index = index < 0 ? 59 : index;
     }
     //update slider
     $(".range-slider").val(index);
-    console.log($(".range-slider").val());
+    console.log("range slider value= ", $(".range-slider").val());
     //pass new attribute to update symbols
     updatePropSymbols(map, attributes[index]);
   });
@@ -336,13 +343,17 @@ function createLegend(map, attributes) {
       $(container).append('<div id="temporal-legend">');
 
       //start attribute legend with svg string
-      var svg = '<svg id="attribute-legend" width="160px" height="60px">';
+      var svg = '<svg id="attribute-legend" width="160px" height="61px">';
+
+      //insert raindrop icon
+      svg +=
+        '<path fill="lightskyblue" stroke="#000" stroke-width="1.5" d="M30 1 Q31.5 16.8 40 22.5 A20.18 20.18 0 1 1 20 22.5 Q28.5 16.8 30 1 z"/>';
 
       //array of circle names to base loop on
       var circles = {
-        max: 20,
-        mean: 40,
-        min: 60,
+        max: 17,
+        mean: 37,
+        min: 57,
       };
 
       // loop to add each circle and text to svg string
@@ -378,7 +389,7 @@ function createLegend(map, attributes) {
 //adds content to side panel initially
 function createPanel(map, attribute) {
   var attributeSplit = new AttributeSplit(attribute);
-  $("#panel").html(
+  $("#panelTop").html(
     "<h1>" + attributeSplit.year + "</h1><h2>" + attributeSplit.month + "</h2>"
   );
 }
