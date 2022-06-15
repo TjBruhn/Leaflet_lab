@@ -136,11 +136,21 @@ function pointToLayer(feature, latlng, attributes) {
 //create and style circle markers for point features
 function createPropSymbols(data, map, attributes) {
   //adds the points as styled circles
-  L.geoJson(data, {
+  var layer = L.geoJson(data, {
     pointToLayer: function (feature, latlng) {
       return pointToLayer(feature, latlng, attributes);
     },
   }).addTo(map);
+
+  //add search control to the map
+  map.addControl(
+    new L.Control.Search({
+      layer: layer,
+      propertyName: "City",
+      hideMarkerOnCollapse: true,
+      zoom: 10,
+    })
+  );
 }
 
 //Resize proportional symbols according to attribute vals selected with seqControls
@@ -204,6 +214,7 @@ function createSequenceControls(map, attributes) {
     },
   });
   map.addControl(new SequenceControl());
+
   //set slider attributes
   $(".range-slider").attr({
     max: 60,
