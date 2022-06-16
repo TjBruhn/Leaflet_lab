@@ -1,21 +1,122 @@
 /* Stylesheet by Trever J. Bruhn 2022*/
 
-/* defining the size of the map container*/
+/*
+========== Global ============
+*/
+body {
+  background-color: rgb(215, 217, 223);
+  font-family: "Montserrat", sans-serif;
+}
+
+:where(h1, h2) {
+  font-family: "Montserrat", sans-serif;
+}
+
+/*
+========== Title ==========
+*/
+#title {
+  text-align: center;
+}
+
+/* 
+======== Map and Map Elements ========
+*/
 #map {
   height: 600px;
   width: 80%;
   display: inline-block;
+  font-family: "Montserrat", sans-serif;
 }
 
-/*defining the size of teh panel container*/
-#panel {
-  width: 16%;
-  padding: 20px;
-  display: inline-block;
-  vertical-align: top;
+.sequence-control-container {
+  width: 250px;
+  height: 50px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  padding-top: 10px;
+  /* line-height: 20px; */
+  text-align: center;
+  border: solid gray 1px;
+  border-radius: 1em;
+}
+
+.legend-control-container {
+  width: 250px;
+  height: auto;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  line-height: 15px;
+  text-align: center;
+  border: solid gray 1px;
+  border-radius: 1em;
+  font-weight: bold;
+}
+
+#temporal-legend {
+  padding-bottom: 5px;
+}
+
+.range-slider {
+  width: 150px;
+}
+
+#forward {
+  float: right;
+}
+
+#reverse {
+  float: left;
 }
 
 /*styleing the popups to have less space between attr*/
 .leaflet-popup-content p {
   margin: 0.2em 0;
+}
+
+/*
+========== Panel ==========
+*/
+#panel {
+  width: 16%;
+  padding: 20px;
+  padding-top: 0px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+#panelTop {
+  text-align: center;
+}
+
+#panelTop h1 {
+  margin-top: 0px;
+  margin-bottom: 10px;
+}
+#panelTop h2 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: solid gray 1px;
+}
+
+#summary h3 {
+  text-align: center;
+  margin-bottom: 2px;
+  font-family: "Patrick Hand SC", cursive;
+  font-size: larger;
+}
+#summary p {
+  margin-top: 2px;
+  font-size: smaller;
+}
+
+/*
+========== Foot ==========
+*/
+#foot {
+  width: 80%;
+  /* display: inline-block; */
+  text-align: left;
+  font-size: smaller;
 }
