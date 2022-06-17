@@ -112,6 +112,17 @@ body {
 }
 
 /*
+========== Filter Panel ==========
+*/
+#filter-panel {
+  width: 80%;
+  display: inline-block;
+  padding: 10px;
+  text-align: center;
+  /* font-size: smaller; */
+}
+
+/*
 ========== Foot ==========
 */
 #foot {

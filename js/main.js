@@ -91,6 +91,7 @@ function calcPropRadius(attValue) {
 function pointToLayer(feature, latlng, attributes) {
   //set an attribute to be used to viz as proportional
   //here we ar setting it to be the first index of the attributes array
+
   var attribute = attributes[0];
 
   //create marker options
@@ -140,9 +141,21 @@ function pointToLayer(feature, latlng, attributes) {
 }
 
 //create and style circle markers for point features
-function createPropSymbols(data, map, attributes) {
+function createPropSymbols(data, map, attributes, filtered = false) {
   //adds the points as styled circles
   var layer = L.geoJson(data, {
+    filter: function (feature, layer) {
+      var countySeat = feature.properties.county_seat;
+      if (filtered) {
+        //could eliminate by changing at data source
+        if (countySeat === "TRUE") {
+          countySeat = true;
+        } else {
+          countySeat = false;
+        }
+      }
+      return countySeat;
+    },
     pointToLayer: function (feature, latlng) {
       return pointToLayer(feature, latlng, attributes);
     },
@@ -158,6 +171,17 @@ function createPropSymbols(data, map, attributes) {
     })
   );
 }
+
+// function createSearch(map) {
+//   map.addControl(
+//     new L.Control.Search({
+//       layer: map.layer,
+//       propertyName: "City",
+//       hideMarkerOnCollapse: true,
+//       zoom: 10,
+//     })
+//   );
+// }
 
 //Resize proportional symbols according to attribute vals selected with seqControls
 function updatePropSymbols(map, attribute) {
@@ -324,7 +348,7 @@ function updateLegend(map, attribute) {
 
     //add legend text
     $("#" + key + "-text").text(
-      Math.round(circleValues[key] * 100) / 100 + " inches"
+      key + ": " + Math.round(circleValues[key] * 100) / 100 + " in."
     );
   }
 }
@@ -394,6 +418,51 @@ function createPanel(map, attribute) {
   );
 }
 
+//add filters to the map to allow user to see data by month or by year or only county seats
+function createFilters(data, map, attributes) {
+  //STEP 1: add container below map
+  //did this in the index
+
+  //step 2: create button for county seat
+  var buttonLabel = "Show County Seats Only";
+  $("#filter-panel").append(
+    '<button class="filter" id="countySeat">' + buttonLabel + "</button>"
+  );
+  //step 3: create dropdown for month
+  //step 4: create radial button for year
+  //step 5: Listen for input
+  $("#countySeat").on("click", function () {
+    //remove any existing search control
+    searchControl = $(".leaflet-control-search");
+    searchControl.remove();
+    //update button text
+    if (buttonLabel === "Show County Seats Only") {
+      buttonLabel = "Show All Cities";
+      //remove current markers
+      map.eachLayer(function (layer) {
+        if (layer.feature) {
+          map.removeLayer(layer);
+        }
+      });
+      //filter data by county seat
+      createPropSymbols(data, map, attributes, (filtered = true));
+    } else {
+      buttonLabel = "Show County Seats Only";
+      //remove current markers
+      map.eachLayer(function (layer) {
+        if (layer.feature) {
+          map.removeLayer(layer);
+        }
+      });
+      //do not filter data by county seat
+      createPropSymbols(data, map, attributes, (filtered = false));
+    }
+    $("#countySeat").html(buttonLabel);
+    updatePropSymbols(map, attributes[$(".range-slider").val()]);
+  });
+  //step 6: apply filter to data
+}
+
 //builds an array of attributes from the data
 function processData(data) {
   //empty array to hold attributes
@@ -429,6 +498,9 @@ function getData(map) {
       createLegend(map, attributes);
       //call function to create sidepanel for the map
       createPanel(map, attributes[0]);
+      //call function to create filters
+      createFilters(response, map, attributes);
+      //createSearch(map);
     },
   });
 }
