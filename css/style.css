@@ -40,6 +40,11 @@ body {
   border: solid gray 1px;
   border-radius: 1em;
 }
+.sequence-control-container span {
+  display: block;
+  text-align: center;
+  width: 250px;
+}
 
 .legend-control-container {
   width: 250px;
@@ -120,6 +125,14 @@ body {
   padding: 10px;
   text-align: center;
   /* font-size: smaller; */
+}
+
+#yeardropdown {
+  display: none;
+}
+
+#monthdropdown {
+  display: none;
 }
 
 /*
