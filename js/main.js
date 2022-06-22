@@ -91,6 +91,7 @@ function calcPropRadius(attValue) {
 function pointToLayer(feature, latlng, attributes) {
   //set an attribute to be used to viz as proportional
   //here we ar setting it to be the first index of the attributes array
+
   var attribute = attributes[0];
 
   //create marker options
@@ -121,17 +122,13 @@ function pointToLayer(feature, latlng, attributes) {
   //add popup to circle marker
   popup.bindToLayer();
 
-  //event listeners to open popup on hover (no work on mobile)
+  //event listeners to open popup on hover (won't work on mobile due to use of mouse events)
   layer.on({
     mouseover: function () {
       this.openPopup();
     },
     mouseout: function () {
       this.closePopup();
-    },
-    //add side panel information using popup
-    click: function () {
-      $("#panelTop").html(popup.panelContent);
     },
   });
 
@@ -140,13 +137,29 @@ function pointToLayer(feature, latlng, attributes) {
 }
 
 //create and style circle markers for point features
-function createPropSymbols(data, map, attributes) {
+function createPropSymbols(data, map, attributes, filtered = false) {
   //adds the points as styled circles
   var layer = L.geoJson(data, {
+    filter: function (feature, layer) {
+      var countySeat = feature.properties.county_seat;
+      if (filtered === "true") {
+        //could eliminate by changing at data source
+        if (countySeat === "TRUE") {
+          countySeat = true;
+        } else {
+          countySeat = false;
+        }
+      }
+      return countySeat;
+    },
     pointToLayer: function (feature, latlng) {
       return pointToLayer(feature, latlng, attributes);
     },
   }).addTo(map);
+
+  //remove any existing search control
+  searchControl = $(".leaflet-control-search");
+  searchControl.remove();
 
   //add search control to the map
   map.addControl(
@@ -182,19 +195,14 @@ function updatePropSymbols(map, attribute) {
 
       //update panel
       createPanel(map, attribute);
-
-      //event listener to update panel content on click and stay at the index set by the sequence controls
-      layer.on({
-        click: function () {
-          $("#panelTop").html(popup.panelContent);
-        },
-      });
     }
   });
 }
 
 //create New sequence controls
 function createSequenceControls(map, attributes) {
+  //remove any existing sequence controls
+  $(".sequence-control-container").remove();
   //adds the sequence controls on the map
   var SequenceControl = L.Control.extend({
     options: {
@@ -224,7 +232,7 @@ function createSequenceControls(map, attributes) {
 
   //set slider attributes
   $(".range-slider").attr({
-    max: 59,
+    max: attributes.length - 1,
     min: 0,
     value: 0,
     step: 1,
@@ -250,11 +258,11 @@ function createSequenceControls(map, attributes) {
     if ($(this).attr("id") == "forward") {
       index++;
       //if past last attribute wrap to the first
-      index = index > 59 ? 0 : index;
+      index = index > attributes.length - 1 ? 0 : index;
     } else if ($(this).attr("id") == "reverse") {
       index--;
       //if past first wrap to last
-      index = index < 0 ? 59 : index;
+      index = index < 0 ? attributes.length - 1 : index;
     }
     //update slider
     $(".range-slider").val(index);
@@ -324,13 +332,16 @@ function updateLegend(map, attribute) {
 
     //add legend text
     $("#" + key + "-text").text(
-      Math.round(circleValues[key] * 100) / 100 + " inches"
+      key + ": " + Math.round(circleValues[key] * 100) / 100 + " in."
     );
   }
 }
 
 //creates legend and places it on the map
 function createLegend(map, attributes) {
+  //remove any existing legend
+  $(".legend-control-container").remove();
+  //extend controils to include a legend
   var LegendControl = L.Control.extend({
     options: {
       position: "bottomright",
@@ -386,12 +397,189 @@ function createLegend(map, attributes) {
   updateLegend(map, attributes[0]);
 }
 
-//adds content to side panel initially
+//adds content to side panelTop initially
 function createPanel(map, attribute) {
   var attributeSplit = new AttributeSplit(attribute);
   $("#panelTop").html(
     "<h1>" + attributeSplit.year + "</h1><h2>" + attributeSplit.month + "</h2>"
   );
+}
+
+//add filters to the map to allow user to see data by month or by year or only county seats
+function createFilters(attributes) {
+  // create button for county seat filter
+  $("#filter-panel").append(
+    '<button class="filter button" id="countySeat">Show County Seats Only</button>'
+  );
+
+  //Create an array of all available years
+  var years = [];
+  attributes.forEach(function (value) {
+    var year = value.split("-")[0];
+    if (years.includes(year)) {
+    } else {
+      years.push(year);
+    }
+  });
+
+  var monthList = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  // create button for years and one for months
+  $("#filter-panel").append(
+    '<button class="filter button" id="filterYear">Select Year</button><button class="filter button" id="filterMonth">Select Month</button>'
+  );
+
+  //create div for dropdowns
+  $("#filter-panel").append(
+    "<div id=dropdown-container><div class=dropdown id=yeardropdown></div><div class=dropdown id=monthdropdown></div></div>"
+  );
+
+  //add dropdown buttons
+  $("#yeardropdown").append(
+    "<button class='dropdown button' id='all'>All</button>"
+  );
+  years.forEach(function (value) {
+    $("#yeardropdown").append(
+      "<button class='dropdown button' id=" +
+        value +
+        " value=" +
+        value +
+        ">" +
+        value +
+        "</button>"
+    );
+  });
+
+  $("#monthdropdown").append(
+    "<button class='dropdown button' id='all'>All</button>"
+  );
+  var counter = 1;
+  monthList.forEach(function (value) {
+    if (counter < 10) {
+      var strCounter = "0" + counter.toString();
+    } else {
+      var strCounter = counter.toString();
+    }
+    $("#monthdropdown").append(
+      "<button class='dropdown button' id=" +
+        value +
+        " value=" +
+        strCounter +
+        ">" +
+        value +
+        "</button>"
+    );
+    counter++;
+  });
+}
+
+function filterCountySeat(data, map, attributes) {
+  var buttonLabel = $("#countySeat").html();
+  //Listen for input
+  $("#countySeat").on("click", function () {
+    //switch button text and create symbols based on filter selection
+    if (buttonLabel === "Show County Seats Only") {
+      buttonLabel = "Show All Cities";
+      $("#countySeat").val(true);
+    } else {
+      buttonLabel = "Show County Seats Only";
+      $("#countySeat").val(false);
+    }
+
+    //remove current markers
+    map.eachLayer(function (layer) {
+      if (layer.feature) {
+        map.removeLayer(layer);
+      }
+    });
+
+    // filter data by county seat based on #countySeat value
+    createPropSymbols(data, map, attributes, $("#countySeat").val());
+
+    //write the correct button lable
+    $("#countySeat").html(buttonLabel);
+
+    //update the symbols to begin at the current slider position
+    updatePropSymbols(map, attributes[$(".range-slider").val()]);
+  });
+}
+
+function filterPeriod(data, map, attributes) {
+  //Listen for input on select year and month and display year/month buttons in place of the default buttons
+  $("#filterYear").on("click", function () {
+    $("#yeardropdown").css("display", "inline");
+    //hide default buttons
+    $(".filter").css("display", "none");
+  });
+  $("#filterMonth").on("click", function () {
+    $("#monthdropdown").css("display", "inline");
+    //hide default buttons
+    $(".filter").css("display", "none");
+  });
+
+  //listen for input on dropdowns and call function to change display according to filter applied
+  $("#yeardropdown button").on("click", function () {
+    var firedButton = $(this).val();
+    callPeriod((inYear = firedButton), (inMonth = ""));
+    $("#yeardropdown").css("display", "none");
+    $(".filter").css("display", "inline");
+  });
+
+  $("#monthdropdown button").on("click", function () {
+    var firedButton = $(this).val();
+    callPeriod((inYear = ""), (inMonth = firedButton));
+    $("#monthdropdown").css("display", "none");
+    $(".filter").css("display", "inline");
+  });
+
+  //filters data based on button and calls functions to update map display with only filtered data
+  function callPeriod(inYear = "", inMonth = "") {
+    if (inYear) {
+      sequenceText = "Select Month";
+      var selectAttributes = attributes.filter(function (value) {
+        var year = value.split("-")[0];
+        return year == inYear;
+      });
+    } else if (inMonth) {
+      sequenceText = "Select Year";
+      var selectAttributes = attributes.filter(function (value) {
+        var month = value.split("-")[1];
+        return month == inMonth;
+      });
+    } else {
+      sequenceText = "Select Month/Year";
+      var selectAttributes = attributes;
+    }
+
+    //call function to create proportional symbols get value from countyseat filter and pass as arg to maintain filter status
+    filterCountySeat(data, map, selectAttributes);
+
+    //call function to create sequence controls
+    createSequenceControls(map, selectAttributes);
+    //update sequence contrl text
+    $(".sequence-control-container span").html(sequenceText);
+
+    //call function to create temporal legend on the map
+    createLegend(map, selectAttributes);
+    //call function to create sidepanel for the map
+    createPanel(map, selectAttributes[0]);
+
+    //update the symbols to begin at the current slider position
+    updatePropSymbols(map, selectAttributes[$(".range-slider").val()]);
+  }
 }
 
 //builds an array of attributes from the data
@@ -420,7 +608,6 @@ function getData(map) {
     success: function (response) {
       //create an attributes array
       var attributes = processData(response);
-
       //call function to create proportional symbols
       createPropSymbols(response, map, attributes);
       //call function to create sequence controls
@@ -429,8 +616,34 @@ function getData(map) {
       createLegend(map, attributes);
       //call function to create sidepanel for the map
       createPanel(map, attributes[0]);
+      //call functions to create filters
+      createFilters(attributes);
+      filterCountySeat(response, map, attributes);
+      filterPeriod(response, map, attributes);
     },
   });
 }
 
 $(createMap); //recommended sytax replacement for $(document).ready(createMap)
+
+// show or hide foot
+$("#references").on("click", function () {
+  if ($("#references").html() === "References") {
+    $("#foot").css("display", "block");
+    $("#references").html("Hide References");
+  } else {
+    $("#foot").css("display", "none");
+    $("#references").html("References");
+  }
+});
+
+// show or hide background image
+$("#background").on("click", function () {
+  if ($("#background").html() === "Hide Background") {
+    $("body").css("background-image", "none");
+    $("#background").html("Show Background");
+  } else {
+    $("body").css("background-image", 'url("/img/background.jpg")');
+    $("#background").html("Hide Background");
+  }
+});
