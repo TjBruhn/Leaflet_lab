@@ -4,12 +4,22 @@
 ========== Global ============
 */
 body {
+  background-image: url("/img/background.jpg");
   background-color: rgb(215, 217, 223);
+  background-position: center;
+  background-size: cover;
   font-family: "Montserrat", sans-serif;
 }
 
-:where(h1, h2) {
+:where(h1, h2, h3) {
   font-family: "Montserrat", sans-serif;
+  text-shadow: 3px 2px 4px white;
+}
+
+.button {
+  font-family: "Montserrat", sans-serif;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 0.5em;
 }
 
 /*
@@ -27,6 +37,7 @@ body {
   width: 80%;
   display: inline-block;
   font-family: "Montserrat", sans-serif;
+  border-radius: 1em;
 }
 
 .sequence-control-container {
@@ -84,10 +95,13 @@ body {
 */
 #panel {
   width: 16%;
+  height: 580px;
   padding: 20px;
   padding-top: 0px;
   display: inline-block;
   vertical-align: top;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 1em;
 }
 
 #panelTop {
@@ -124,7 +138,14 @@ body {
   display: inline-block;
   padding: 10px;
   text-align: center;
-  /* font-size: smaller; */
+  font-size: smaller;
+}
+
+#references {
+  float: left;
+}
+#background {
+  float: right;
 }
 
 #yeardropdown {
@@ -140,7 +161,10 @@ body {
 */
 #foot {
   width: 80%;
-  /* display: inline-block; */
+  display: none;
   text-align: left;
   font-size: smaller;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 1em;
+  padding: 0.5em;
 }
