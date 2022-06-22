@@ -266,7 +266,6 @@ function createSequenceControls(map, attributes) {
     }
     //update slider
     $(".range-slider").val(index);
-    console.log("range slider value= ", $(".range-slider").val());
     //pass new attribute to update symbols
     updatePropSymbols(map, attributes[index]);
   });
