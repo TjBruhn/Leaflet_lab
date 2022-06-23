@@ -4,16 +4,16 @@
 ========== Global ============
 */
 body {
-  background-image: url("/img/background.jpg");
+  background-image: url("/img/raindrops.png");
   background-color: rgb(215, 217, 223);
   background-position: center;
-  background-size: cover;
+  /* background-size: cover; */
   font-family: "Montserrat", sans-serif;
 }
 
 :where(h1, h2, h3) {
   font-family: "Montserrat", sans-serif;
-  text-shadow: 3px 2px 4px white;
+  /* text-shadow: 3px 2px 4px white; */
 }
 
 .button {
@@ -27,6 +27,14 @@ body {
 */
 #title {
   text-align: center;
+  padding: 1px;
+  margin: 0px;
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0.35),
+    rgba(255, 255, 255, 0)
+  );
+  border-radius: 2em;
 }
 
 /* 
@@ -95,12 +103,12 @@ body {
 */
 #panel {
   width: 16%;
-  height: 580px;
+  height: 570px;
   padding: 20px;
-  padding-top: 0px;
+  padding-top: 10px;
   display: inline-block;
   vertical-align: top;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.7);
   border-radius: 1em;
 }
 
@@ -160,7 +168,7 @@ body {
 ========== Foot ==========
 */
 #foot {
-  width: 80%;
+  width: 98%;
   display: none;
   text-align: left;
   font-size: smaller;
