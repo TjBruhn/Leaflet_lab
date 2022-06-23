@@ -217,8 +217,12 @@ function createSequenceControls(map, attributes) {
       $(container).append('<input class="range-slider" type="range">');
 
       //add buttons
-      $(container).append('<button class="skip" id="reverse">Reverse</button>');
-      $(container).append('<button class="skip" id="forward">Skip</button>');
+      $(container).append(
+        '<button class="skip button" id="reverse">Reverse</button>'
+      );
+      $(container).append(
+        '<button class="skip button" id="forward">Skip</button>'
+      );
 
       //kill any mouse event listeners on the map
       $(container).on("mousedown dblclick", function (e) {
@@ -239,8 +243,8 @@ function createSequenceControls(map, attributes) {
   });
 
   //add icons for buttons
-  $("#forward").html('<img src="img/skip_fwd.png">');
-  $("#reverse").html('<img src="img/skip_rev.png">');
+  $("#forward").html('<img src="img/skip_fwd.svg">');
+  $("#reverse").html('<img src="img/skip_rev.svg">');
 
   //add event listeners for slider
   $(".range-slider").on("input", function () {
