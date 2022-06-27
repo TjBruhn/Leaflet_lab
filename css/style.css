@@ -7,7 +7,6 @@ body {
   background-image: url("/img/raindrops.png");
   background-color: rgb(215, 217, 223);
   background-position: center;
-  /* background-size: cover; */
   font-family: "Montserrat", sans-serif;
 }
 
@@ -42,7 +41,7 @@ body {
 ======== Map and Map Elements ========
 */
 #map {
-  height: 600px;
+  height: 80vh;
   width: 80%;
   display: inline-block;
   font-family: "Montserrat", sans-serif;
@@ -55,7 +54,6 @@ body {
   background-color: rgba(255, 255, 255, 0.8);
   padding: 10px;
   padding-top: 10px;
-  /* line-height: 20px; */
   text-align: center;
   border: solid gray 1px;
   border-radius: 1em;
@@ -106,10 +104,9 @@ body {
 ========== Panel ==========
 */
 #panel {
-  width: 16%;
-  height: 570px;
+  width: 16vw;
+  height: 75vh;
   padding: 20px;
-  padding-top: 10px;
   display: inline-block;
   vertical-align: top;
   background-color: rgba(255, 255, 255, 0.7);
@@ -146,7 +143,7 @@ body {
 ========== Filter Panel ==========
 */
 #filter-panel {
-  width: 80%;
+  width: 80vw;
   display: inline-block;
   padding-top: 10px;
   padding-bottom: 10px;
@@ -180,4 +177,31 @@ body {
   background-color: rgba(255, 255, 255, 0.7);
   border-radius: 1em;
   padding: 0.5em;
+}
+
+/*
+========= Responsive =========
+*/
+@media screen and (max-width: 1200px) {
+  body {
+    background-image: none;
+  }
+  #panel {
+    display: none;
+  }
+  #map {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 95vw;
+  }
+  #filter-panel {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 95vw;
+  }
+  #background {
+    display: none;
+  }
 }
