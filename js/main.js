@@ -646,7 +646,7 @@ $("#background").on("click", function () {
     $("body").css("background-image", "none");
     $("#background").html("Show Background");
   } else {
-    $("body").css("background-image", 'url("../img/raindrops.png")');
+    $("body").css("background-image", 'url("img/raindrops.png")');
     $("#background").html("Hide Background");
   }
 });
