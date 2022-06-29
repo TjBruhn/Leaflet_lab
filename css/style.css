@@ -4,7 +4,7 @@
 ========== Global ============
 */
 body {
-  background-image: url("/img/raindrops.png");
+  background-image: url("../img/raindrops.png");
   background-color: rgb(215, 217, 223);
   background-position: center;
   font-family: "Montserrat", sans-serif;
