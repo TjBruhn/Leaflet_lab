@@ -1,2 +1,4 @@
 # Precipitation in Oregon - Interactive Webmap
- leaflet lab for geog 575
+Leaflet lab for geog 575. <br /> 
+Built with JS, HTML, CSS, Leaflet. <br />
+Allows users to explore preciptation levels in Oregon over time.
